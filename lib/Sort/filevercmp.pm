@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Exporter 'import';
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 our @EXPORT = 'filevercmp';
 our @EXPORT_OK = 'fileversort';
