@@ -1,0 +1,130 @@
+=pod
+
+=head1 NAME
+
+Sort::filevercmp - Sort version strings as in GNU filevercmp
+
+=head1 SYNOPSIS
+
+  use Sort::filevercmp;
+  my @sorted = sort filevercmp 'foo-bar-1.2a.tar.gz', 'foo-bar-1.10.zip';
+  my $cmp = filevercmp 'a1b2c3.tar', 'a1b2c3.tar~';
+  say $cmp ? $cmp < 0 ? 'First name' : 'Second name' : 'Names are equal';
+  
+  # Pre-parse list for faster sorting
+  use Sort::filevercmp 'fileversort';
+  my @sorted = fileversort @filenames;
+
+=head1 DESCRIPTION
+
+Perl implementation of the C<filevercmp> function from
+L<gnulib|https://www.gnu.org/software/gnulib/>. C<filevercmp> is used by the
+L<sort(1)> (C<-V> option) and L<ls(1)> (C<-v> option) GNU coreutils commands
+for "natural" sorting of strings (usually filenames) containing mixed version
+numbers and filename suffixes.
+
+=head1 FUNCTIONS
+
+=head2 filevercmp
+
+  my $cmp = filevercmp $string1, $string2;
+  my @sorted = sort filevercmp @strings;
+
+Takes two strings and returns -1 if the first string sorts first, 1 if the
+second string sorts first, or 0 if the strings sort equivalently. Can be passed
+to L<sort|perlfunc/"sort"> directly as a comparison function. Exported by
+default.
+
+=head2 fileversort
+
+  my @sorted = fileversort @strings;
+
+Takes a list of strings and sorts them according to L</"filevercmp">. The
+strings are pre-parsed so it may be more efficient than using L</"filevercmp">
+as a sort comparison function. Exported by request.
+
+=head1 ALGORITHM
+
+The sort algorithm works roughly as follows:
+
+=over
+
+=item 1
+
+Empty strings, C<.>, and C<..> go first
+
+=item 2
+
+Hidden files (strings beginning with C<.>) go next, and are sorted among
+themselves according to the remaining rules
+
+=item 3
+
+The string is split into sequences of non-digit characters and digit (C<0-9>)
+characters, ignoring any filename suffix as matched by the regex
+C</(?:\.[A-Za-z~][A-Za-z0-9~]*)*$/>, unless the strings are equal with the
+suffixes removed.
+
+=item 4
+
+The first non-digit sequence of the strings are compared lexically, with
+letters (C<a-zA-Z>) sorting first and other characters sorting after, according
+to byte order. The tilde (C<~>) character sorts before all other characters,
+even the end of the sequence. Continue if the non-digit sequences are equal.
+
+=item 5
+
+The first digit sequence of the strings are compared numerically, ignoring
+leading zeroes. Continue if the digit sequences are equal.
+
+=item 6
+
+Repeat steps 4 and 5 with the remaining sequences.
+
+=back
+
+It is important to note that this algorithm ignores the current locale, and has
+unique rules for lexically sorting the non-digit components of the strings.
+
+=head1 CAVEATS
+
+This sort algorithm ignores the current locale, and has unique rules for
+lexically sorting the non-digit components of the strings, designed for sorting
+filenames. There are better options for general version string sorting; see
+L</"SEE ALSO">.
+
+=head1 BUGS
+
+Report any issues on the public bugtracker.
+
+=head1 AUTHOR
+
+Dan Book <dbook@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2017 by Dan Book.
+
+This is free software, licensed under:
+
+  The Artistic License 2.0 (GPL Compatible)
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<version> - for comparing Perl version strings
+
+=item *
+
+L<Sort::Versions> - for comparing standard version strings
+
+=item *
+
+L<Sort::Naturally> - locale-sensitive natural sorting of mixed strings
+
+=back
+
+=cut
