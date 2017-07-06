@@ -185,31 +185,30 @@ themselves according to the remaining rules
 
 =item 3
 
-The string is split into sequences of non-digit characters and digit (C<0-9>)
+Each string is split into sequences of non-digit characters and digit (C<0-9>)
 characters, ignoring any filename suffix as matched by the regex
-C</(?:\.[A-Za-z~][A-Za-z0-9~]*)*$/>, unless the strings are equal with the
-suffixes removed.
+C</(?:\.[A-Za-z~][A-Za-z0-9~]*)*$/>, unless the strings to be compared are
+equal with the suffixes removed.
 
 =item 4
 
-The first non-digit sequence of the strings are compared lexically, with
-letters (C<a-zA-Z>) sorting first and other characters sorting after, according
-to byte order. The tilde (C<~>) character sorts before all other characters,
-even the end of the sequence. Continue if the non-digit sequences are equal.
+The first non-digit sequence of the first string is compared lexically with
+that of the second string, with letters (C<a-zA-Z>) sorting first and other
+characters sorting after, ordered by character ordinals. The tilde (C<~>)
+character sorts before all other characters, even the end of the sequence.
+Continue if the non-digit sequences are lexically equal.
 
 =item 5
 
-The first digit sequence of the strings are compared numerically, ignoring
-leading zeroes. Continue if the digit sequences are equal.
+The first digit sequence of the first string is compared numerically with that
+of the second string, ignoring leading zeroes. Continue if the digit sequences
+are numerically equal.
 
 =item 6
 
 Repeat steps 4 and 5 with the remaining sequences.
 
 =back
-
-It is important to note that this algorithm ignores the current locale, and has
-unique rules for lexically sorting the non-digit components of the strings.
 
 =head1 CAVEATS
 
